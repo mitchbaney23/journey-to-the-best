@@ -95,7 +95,7 @@ const WorkoutLogScreen = () => {
         if (currentWorkout.situps > bestPerformance.situps) { newBest.situps = currentWorkout.situps; hasNewBest = true; }
         if (currentWorkout.squats > bestPerformance.squats) { newBest.squats = currentWorkout.squats; hasNewBest = true; }
         if (currentWorkout.pullups > bestPerformance.pullups) { newBest.pullups = currentWorkout.pullups; hasNewBest = true; }
-        if (currentWorkout.run5kTotalMinutes < bestPerformance.run5kTotalMinutes) { 
+        if (currentWorkout.run5kTotalMinutes > 0 && currentWorkout.run5kTotalMinutes < bestPerformance.run5kTotalMinutes) { 
             newBest.run5kTotalMinutes = currentWorkout.run5kTotalMinutes; 
             newBest.run5kMinutes = currentWorkout.run5kMinutes;
             newBest.run5kSeconds = currentWorkout.run5kSeconds;
@@ -126,15 +126,36 @@ const WorkoutLogScreen = () => {
             <Text style={styles.title}>{userProfile?.currentStage?.title || 'Log Your Workout'}</Text>
             <View style={styles.formContainer}>
                 <Text style={styles.label}>Log Today's Workout</Text>
-                <TextInput style={styles.input} placeholder="Push-ups" value={stats.pushups} onChangeText={v => handleInputChange('pushups', v)} keyboardType="number-pad" />
-                <TextInput style={styles.input} placeholder="Sit-ups" value={stats.situps} onChangeText={v => handleInputChange('situps', v)} keyboardType="number-pad" />
-                <TextInput style={styles.input} placeholder="Squats" value={stats.squats} onChangeText={v => handleInputChange('squats', v)} keyboardType="number-pad" />
-                <TextInput style={styles.input} placeholder="Pull-ups" value={stats.pullups} onChangeText={v => handleInputChange('pullups', v)} keyboardType="number-pad" />
-                <View style={styles.timeContainer}>
-                    <TextInput style={styles.timeInput} placeholder="5K Mins" value={stats.run5kMinutes} onChangeText={v => handleInputChange('run5kMinutes', v)} keyboardType="number-pad" />
-                    <Text style={styles.timeSeparator}>:</Text>
-                    <TextInput style={styles.timeInput} placeholder="5K Secs" value={stats.run5kSeconds} onChangeText={v => handleInputChange('run5kSeconds', v)} keyboardType="number-pad" />
+                
+                <View style={styles.inputGroup}>
+                    <Text style={styles.inputLabel}>Push-ups</Text>
+                    <TextInput style={styles.input} value={stats.pushups} onChangeText={v => handleInputChange('pushups', v)} keyboardType="number-pad" />
                 </View>
+
+                <View style={styles.inputGroup}>
+                    <Text style={styles.inputLabel}>Sit-ups</Text>
+                    <TextInput style={styles.input} value={stats.situps} onChangeText={v => handleInputChange('situps', v)} keyboardType="number-pad" />
+                </View>
+
+                <View style={styles.inputGroup}>
+                    <Text style={styles.inputLabel}>Squats</Text>
+                    <TextInput style={styles.input} value={stats.squats} onChangeText={v => handleInputChange('squats', v)} keyboardType="number-pad" />
+                </View>
+
+                <View style={styles.inputGroup}>
+                    <Text style={styles.inputLabel}>Pull-ups</Text>
+                    <TextInput style={styles.input} value={stats.pullups} onChangeText={v => handleInputChange('pullups', v)} keyboardType="number-pad" />
+                </View>
+
+                <View style={styles.inputGroup}>
+                    <Text style={styles.inputLabel}>5K Run Time</Text>
+                    <View style={styles.timeContainer}>
+                        <TextInput style={styles.timeInput} placeholder="Mins" placeholderTextColor="#777" value={stats.run5kMinutes} onChangeText={v => handleInputChange('run5kMinutes', v)} keyboardType="number-pad" />
+                        <Text style={styles.timeSeparator}>:</Text>
+                        <TextInput style={styles.timeInput} placeholder="Secs" placeholderTextColor="#777" value={stats.run5kSeconds} onChangeText={v => handleInputChange('run5kSeconds', v)} keyboardType="number-pad" />
+                    </View>
+                </View>
+                
                 <Button title="Log Workout" onPress={handleLogWorkout} color="#4CAF50" />
             </View>
             <Text style={styles.label}>Workout History</Text>
@@ -172,8 +193,10 @@ const styles = StyleSheet.create({
     title: { fontSize: 28, fontWeight: 'bold', color: '#FFFFFF', textAlign: 'center', marginBottom: 20 },
     formContainer: { backgroundColor: '#2a2a2a', padding: 15, borderRadius: 10, marginBottom: 20 },
     label: { fontSize: 20, fontWeight: '600', color: '#FFFFFF', marginBottom: 15 },
-    input: { height: 50, backgroundColor: '#333', borderRadius: 8, paddingHorizontal: 15, color: '#FFFFFF', fontSize: 16, marginBottom: 10 },
-    timeContainer: { flexDirection: 'row', alignItems: 'center', marginBottom: 15 },
+    inputGroup: { width: '100%', marginBottom: 15 },
+    inputLabel: { fontSize: 16, color: '#ccc', marginBottom: 5 },
+    input: { height: 50, backgroundColor: '#333', borderRadius: 8, paddingHorizontal: 15, color: '#FFFFFF', fontSize: 16 },
+    timeContainer: { flexDirection: 'row', alignItems: 'center' },
     timeInput: { flex: 1, height: 50, backgroundColor: '#333', borderRadius: 8, paddingHorizontal: 15, color: '#FFFFFF', fontSize: 16, textAlign: 'center' },
     timeSeparator: { color: '#FFFFFF', fontSize: 24, marginHorizontal: 10 },
     historyItem: { backgroundColor: '#333', padding: 10, borderRadius: 5, marginBottom: 10 },
