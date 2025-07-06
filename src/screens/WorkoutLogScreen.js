@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import { addDoc, collection, doc, onSnapshot, orderBy, query, serverTimestamp, setDoc } from 'firebase/firestore';
-import { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Button, FlatList, SafeAreaView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { auth, db } from '../config/firebaseConfig';
 
@@ -13,6 +13,46 @@ const STAGES = [
     { stage: 6, title: "🔥 Heavenly Champion", requirements: { pushups: 90, situps: 90, squats: 100, pullups: 15, run5kMinutes: 25 } },
     { stage: 7, title: "👑 Monkey King Ascended", requirements: { pushups: 100, situps: 100, squats: 100, pullups: 20, run5kMinutes: 24.98 } }
 ];
+
+// Memoized form component to prevent re-renders and keyboard dismissal
+const WorkoutForm = React.memo(({ stats, onInputChange, onLogWorkout }) => {
+    return (
+        <View style={styles.formContainer}>
+            <Text style={styles.label}>Log Today's Workout</Text>
+            
+            <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>Push-ups</Text>
+                <TextInput style={styles.input} value={stats.pushups} onChangeText={v => onInputChange('pushups', v)} keyboardType="number-pad" />
+            </View>
+
+            <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>Sit-ups</Text>
+                <TextInput style={styles.input} value={stats.situps} onChangeText={v => onInputChange('situps', v)} keyboardType="number-pad" />
+            </View>
+
+            <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>Squats</Text>
+                <TextInput style={styles.input} value={stats.squats} onChangeText={v => onInputChange('squats', v)} keyboardType="number-pad" />
+            </View>
+
+            <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>Pull-ups</Text>
+                <TextInput style={styles.input} value={stats.pullups} onChangeText={v => onInputChange('pullups', v)} keyboardType="number-pad" />
+            </View>
+
+            <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>5K Run Time</Text>
+                <View style={styles.timeContainer}>
+                    <TextInput style={styles.timeInput} placeholder="Mins" placeholderTextColor="#777" value={stats.run5kMinutes} onChangeText={v => onInputChange('run5kMinutes', v)} keyboardType="number-pad" />
+                    <Text style={styles.timeSeparator}>:</Text>
+                    <TextInput style={styles.timeInput} placeholder="Secs" placeholderTextColor="#777" value={stats.run5kSeconds} onChangeText={v => onInputChange('run5kSeconds', v)} keyboardType="number-pad" />
+                </View>
+            </View>
+            
+            <Button title="Log Workout" onPress={onLogWorkout} color="#4CAF50" />
+        </View>
+    );
+});
 
 const WorkoutLogScreen = () => {
     const router = useRouter();
@@ -46,9 +86,9 @@ const WorkoutLogScreen = () => {
         };
     }, []);
 
-    const handleInputChange = (name, value) => {
+    const handleInputChange = useCallback((name, value) => {
         setStats(prevStats => ({ ...prevStats, [name]: value }));
-    };
+    }, []);
     
     const calculateStage = (performance) => {
         for (let i = STAGES.length - 1; i >= 0; i--) {
@@ -69,7 +109,7 @@ const WorkoutLogScreen = () => {
 
     const handleLogWorkout = async () => {
         const user = auth.currentUser;
-        if (!user) return;
+        if (!user || !userProfile) return;
 
         const currentWorkout = {
             pushups: Number(stats.pushups) || 0,
@@ -124,40 +164,11 @@ const WorkoutLogScreen = () => {
     const renderHeader = () => (
         <>
             <Text style={styles.title}>{userProfile?.currentStage?.title || 'Log Your Workout'}</Text>
-            <View style={styles.formContainer}>
-                <Text style={styles.label}>Log Today's Workout</Text>
-                
-                <View style={styles.inputGroup}>
-                    <Text style={styles.inputLabel}>Push-ups</Text>
-                    <TextInput style={styles.input} value={stats.pushups} onChangeText={v => handleInputChange('pushups', v)} keyboardType="number-pad" />
-                </View>
-
-                <View style={styles.inputGroup}>
-                    <Text style={styles.inputLabel}>Sit-ups</Text>
-                    <TextInput style={styles.input} value={stats.situps} onChangeText={v => handleInputChange('situps', v)} keyboardType="number-pad" />
-                </View>
-
-                <View style={styles.inputGroup}>
-                    <Text style={styles.inputLabel}>Squats</Text>
-                    <TextInput style={styles.input} value={stats.squats} onChangeText={v => handleInputChange('squats', v)} keyboardType="number-pad" />
-                </View>
-
-                <View style={styles.inputGroup}>
-                    <Text style={styles.inputLabel}>Pull-ups</Text>
-                    <TextInput style={styles.input} value={stats.pullups} onChangeText={v => handleInputChange('pullups', v)} keyboardType="number-pad" />
-                </View>
-
-                <View style={styles.inputGroup}>
-                    <Text style={styles.inputLabel}>5K Run Time</Text>
-                    <View style={styles.timeContainer}>
-                        <TextInput style={styles.timeInput} placeholder="Mins" placeholderTextColor="#777" value={stats.run5kMinutes} onChangeText={v => handleInputChange('run5kMinutes', v)} keyboardType="number-pad" />
-                        <Text style={styles.timeSeparator}>:</Text>
-                        <TextInput style={styles.timeInput} placeholder="Secs" placeholderTextColor="#777" value={stats.run5kSeconds} onChangeText={v => handleInputChange('run5kSeconds', v)} keyboardType="number-pad" />
-                    </View>
-                </View>
-                
-                <Button title="Log Workout" onPress={handleLogWorkout} color="#4CAF50" />
-            </View>
+            <WorkoutForm 
+                stats={stats}
+                onInputChange={handleInputChange}
+                onLogWorkout={handleLogWorkout}
+            />
             <Text style={styles.label}>Workout History</Text>
         </>
     );
