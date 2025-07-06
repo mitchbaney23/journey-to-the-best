@@ -1,4 +1,3 @@
-// Update the import path below to the correct location of HomeScreen
-import HomeScreen from '../../src/screens/HomeScreen';
+import RootNavigation from '../../src/navigation/RootNavigation';
 
-export default HomeScreen;
+export default RootNavigation;
