@@ -2,27 +2,26 @@ import { useRouter } from 'expo-router';
 import { signOut } from 'firebase/auth';
 import { collection, doc, limit, onSnapshot, orderBy, query } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Button, FlatList, SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Button, FlatList, Image, ImageBackground, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 import { auth, db } from '../config/firebaseConfig';
 
 // The STAGES array defines the entire journey, now with requirements
 const STAGES = [
-    { stage: 1, title: "🌱 Awakened Seeker", requirements: { pushups: 10, situps: 20, squats: 20, pullups: 0, run5kMinutes: 45 } },
-    { stage: 2, title: "🍂 Pathfinder", requirements: { pushups: 20, situps: 30, squats: 30, pullups: 1, run5kMinutes: 40 } },
-    { stage: 3, title: "🌸 Disciple", requirements: { pushups: 30, situps: 40, squats: 50, pullups: 3, run5kMinutes: 35 } },
-    { stage: 4, title: "🪷 Enlightened Warrior", requirements: { pushups: 50, situps: 50, squats: 75, pullups: 5, run5kMinutes: 30 } },
-    { stage: 5, title: "🏔️ Mountain Sage", requirements: { pushups: 70, situps: 75, squats: 90, pullups: 10, run5kMinutes: 27 } },
-    { stage: 6, title: "🔥 Heavenly Champion", requirements: { pushups: 90, situps: 90, squats: 100, pullups: 15, run5kMinutes: 25 } },
-    { stage: 7, title: "👑 Monkey King Ascended", requirements: { pushups: 100, situps: 100, squats: 100, pullups: 20, run5kMinutes: 24.98 } }
+    { stage: 1, title: "🌱 Awakened Seeker", icon: require('../assets/images/stage1.png'), requirements: { pushups: 10, situps: 20, squats: 20, pullups: 0, run5kMinutes: 45 } },
+    { stage: 2, title: "🍂 Pathfinder", icon: require('../assets/images/stage2.png'), requirements: { pushups: 20, situps: 30, squats: 30, pullups: 1, run5kMinutes: 40 } },
+    { stage: 3, title: "🌸 Disciple", icon: require('../assets/images/stage3.png'), requirements: { pushups: 30, situps: 40, squats: 50, pullups: 3, run5kMinutes: 35 } },
+    { stage: 4, title: "🪷 Enlightened Warrior", icon: require('../assets/images/stage4.png'), requirements: { pushups: 50, situps: 50, squats: 75, pullups: 5, run5kMinutes: 30 } },
+    { stage: 5, title: "🏔️ Mountain Sage", icon: require('../assets/images/stage5.png'), requirements: { pushups: 70, situps: 75, squats: 90, pullups: 10, run5kMinutes: 27 } },
+    { stage: 6, title: "🔥 Heavenly Champion", icon: require('../assets/images/stage6.png'), requirements: { pushups: 90, situps: 90, squats: 100, pullups: 15, run5kMinutes: 25 } },
+    { stage: 7, title: "👑 Monkey King Ascended", icon: require('../assets/images/stage7.png'), requirements: { pushups: 100, situps: 100, squats: 100, pullups: 20, run5kMinutes: 24.98 } }
 ];
 
 // This component now uses the most recent workout to calculate progress
 const ProgressTracker = ({ userProfile, latestWorkout }) => {
     if (!userProfile?.currentStage || !userProfile?.baseline) return null;
 
-    // Prioritize the latest workout's stats, otherwise fall back to the baseline
     const userStats = latestWorkout || userProfile.baseline;
-    if (!userStats) return null; // Extra guard clause
+    if (!userStats) return null;
 
     const currentStageIndex = STAGES.findIndex(s => s.stage === userProfile.currentStage.stage);
     
@@ -62,14 +61,13 @@ const ProgressTracker = ({ userProfile, latestWorkout }) => {
 const HomeScreen = () => {
   const router = useRouter();
   const [userProfile, setUserProfile] = useState(null);
-  const [latestWorkout, setLatestWorkout] = useState(null); // <-- State for latest workout
+  const [latestWorkout, setLatestWorkout] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const user = auth.currentUser;
     if (!user) return;
 
-    // Listener for user profile
     const userDocRef = doc(db, 'users', user.uid);
     const unsubscribeProfile = onSnapshot(userDocRef, (doc) => {
         if (doc.exists()) {
@@ -80,7 +78,6 @@ const HomeScreen = () => {
         setLoading(false);
     });
 
-    // Listener for the most recent workout
     const workoutsQuery = query(
         collection(db, 'users', user.uid, 'workouts'),
         orderBy('timestamp', 'desc'),
@@ -106,7 +103,7 @@ const HomeScreen = () => {
     const isCurrentStage = item.stage === userProfile?.currentStage?.stage;
     return (
         <View style={[styles.stageContainer, isCurrentStage && styles.currentStage]}>
-            <Text style={styles.stageNumber}>{item.stage}</Text>
+            <Image source={item.icon} style={styles.stageIcon} />
             <Text style={styles.stageTitleText}>{item.title}</Text>
         </View>
     );
@@ -137,49 +134,60 @@ const HomeScreen = () => {
   }
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-        {userProfile?.baseline ? (
-            <FlatList
-                data={STAGES}
-                renderItem={renderStageItem}
-                keyExtractor={item => item.stage.toString()}
-                ListHeaderComponent={ListHeader}
-                ListFooterComponent={<View style={{ marginVertical: 20 }}><Button title="Sign Out" onPress={handleSignOut} color="#f44336" /></View>}
-                contentContainerStyle={styles.container}
-            />
-        ) : (
-          <View style={styles.noBaselineContainer}>
-            <Text style={styles.title}>Begin Your Journey</Text>
-            <Text style={styles.subtitle}>Determine your starting point on the path to greatness.</Text>
-            <Button title="Start Your Journey" onPress={() => router.push('/start-journey')} color="#2196F3" />
-            <View style={{marginTop: 40}}>
-                <Button title="Sign Out" onPress={handleSignOut} color="#f44336" />
+    <ImageBackground 
+        source={require('../assets/images/home-screen-background.png')} 
+        style={styles.background}
+        resizeMode="cover"
+    >
+        <SafeAreaView style={styles.safeArea}>
+            {userProfile?.baseline ? (
+                <FlatList
+                    data={STAGES}
+                    renderItem={renderStageItem}
+                    keyExtractor={item => item.stage.toString()}
+                    ListHeaderComponent={ListHeader}
+                    ListFooterComponent={<View style={{ marginVertical: 20 }}><Button title="Sign Out" onPress={handleSignOut} color="#f44336" /></View>}
+                    contentContainerStyle={styles.container}
+                />
+            ) : (
+            <View style={styles.noBaselineContainer}>
+                <Text style={styles.title}>Begin Your Journey</Text>
+                <Text style={styles.subtitle}>Determine your starting point on the path to greatness.</Text>
+                <Button title="Start Your Journey" onPress={() => router.push('/start-journey')} color="#2196F3" />
+                <View style={{marginTop: 40}}>
+                    <Button title="Sign Out" onPress={handleSignOut} color="#f44336" />
+                </View>
             </View>
-          </View>
-        )}
-    </SafeAreaView>
+            )}
+        </SafeAreaView>
+    </ImageBackground>
   );
 };
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#1a1a1a' },
+  background: {
+    flex: 1,
+  },
+  safeArea: { 
+    flex: 1, 
+    backgroundColor: 'rgba(0,0,0,0.5)' // Adds a semi-transparent overlay
+  },
   container: { paddingHorizontal: 20, paddingBottom: 40 },
   noBaselineContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 },
   title: { fontSize: 28, fontWeight: 'bold', color: '#FFFFFF', textAlign: 'center', marginVertical: 20 },
   subtitle: { fontSize: 16, color: '#ccc', textAlign: 'center', marginBottom: 30, paddingHorizontal: 20 },
-  statsContainer: { padding: 20, backgroundColor: '#333', borderRadius: 10, width: '100%', marginBottom: 20 },
+  statsContainer: { padding: 20, backgroundColor: 'rgba(51, 51, 51, 0.8)', borderRadius: 10, width: '100%', marginBottom: 20 },
   statText: { fontSize: 18, color: '#FFFFFF', marginBottom: 10 },
   buttonRow: { flexDirection: 'row', justifyContent: 'space-around', width: '100%', marginBottom: 20 },
-  progressContainer: { padding: 15, backgroundColor: '#2a2a2a', borderRadius: 10, width: '100%', marginBottom: 20 },
+  progressContainer: { padding: 15, backgroundColor: 'rgba(42, 42, 42, 0.8)', borderRadius: 10, width: '100%', marginBottom: 20 },
   progressTitle: { fontSize: 18, fontWeight: 'bold', color: '#FFFFFF', marginBottom: 5 },
   progressSubtitle: { fontSize: 12, color: '#aaa', fontStyle: 'italic', marginBottom: 10 },
   progressText: { fontSize: 16, color: '#ccc', marginBottom: 5 },
   mapTitle: { fontSize: 22, fontWeight: 'bold', color: '#FFFFFF', marginTop: 20, marginBottom: 15 },
   stageContainer: {
-    backgroundColor: '#333',
+    backgroundColor: 'rgba(51, 51, 51, 0.8)',
     borderRadius: 10,
-    paddingVertical: 15,
-    paddingHorizontal: 20,
+    padding: 15,
     marginBottom: 15,
     width: '100%',
     flexDirection: 'row',
@@ -189,13 +197,12 @@ const styles = StyleSheet.create({
   },
   currentStage: {
     borderColor: '#4CAF50',
-    backgroundColor: '#2a4d2a',
+    backgroundColor: 'rgba(42, 77, 42, 0.9)',
   },
-  stageNumber: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#ccc',
-    marginRight: 20,
+  stageIcon: {
+    width: 40,
+    height: 40,
+    marginRight: 15,
   },
   stageTitleText: {
     fontSize: 18,
@@ -206,7 +213,3 @@ const styles = StyleSheet.create({
 });
 
 export default HomeScreen;
-// This code defines the HomeScreen component, which serves as the main screen of the app.
-// It displays the user's current stage, allows them to log workouts, edit their profile, and view their progress.
-// The component uses Firebase Firestore to fetch the user's profile and latest workout data,
-// and it includes a progress tracker that shows how close the user is to reaching the next stage
