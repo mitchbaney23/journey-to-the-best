@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { doc, updateDoc } from 'firebase/firestore';
+import { doc, setDoc } from 'firebase/firestore';
 import { useState } from 'react';
 import { Alert, Button, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { auth, db } from '../config/firebaseConfig';
@@ -68,17 +68,21 @@ const StartYourJourney = () => {
         baseline.run5kTotalMinutes = baseline.run5kMinutes + (baseline.run5kSeconds / 60);
 
         const assignedStage = calculateStage(baseline);
+        // If no stage requirements are met, default to the first stage (Awakened Seeker)
+        const finalStage = assignedStage || STAGES[0];
 
         try {
             const userDocRef = doc(db, 'users', user.uid);
-            await updateDoc(userDocRef, {
+            // Use setDoc with merge: true. This will create the document if it doesn't exist,
+            // or update it if it does, preventing the "no document to update" error.
+            await setDoc(userDocRef, {
                 baseline: baseline,
-                currentStage: assignedStage || { stage: 0, title: "Embarking on the Path" } // Default if no stage is met
-            });
+                currentStage: finalStage
+            }, { merge: true });
 
             Alert.alert(
                 "Your Journey Begins!",
-                `Congratulations — you are now a ${assignedStage ? assignedStage.title : "new traveler"}!`,
+                `Congratulations — you are now a ${finalStage.title}!`,
                 [{ text: "OK", onPress: () => router.replace('/') }] // Go back to home screen
             );
 
@@ -139,3 +143,5 @@ const styles = StyleSheet.create({
 });
 
 export default StartYourJourney;
+// This code defines the StartYourJourney component, which allows users to enter their baseline fitness stats and calculates their initial stage based on those stats. It uses Firebase Firestore to save the user's data and navigate back to the home screen after saving. The component includes input fields for push-ups, sit-ups, squats, pull-ups, and 5K run time, with validation and error handling.
+// The stages are defined in the STAGES array, and the user's stage is determined based on their input. The component uses a scrollable view to accommodate smaller screens and provides a clean, user
