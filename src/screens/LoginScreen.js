@@ -1,7 +1,9 @@
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Button, SafeAreaView, StyleSheet, Text, TextInput, View } from 'react-native';
-import { auth } from '../config/firebaseConfig';
+// Import db and firestore functions
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
+import { auth, db } from '../config/firebaseConfig';
 
 const LoginScreen = () => {
   const [email, setEmail] = useState('');
@@ -9,14 +11,34 @@ const LoginScreen = () => {
   const [error, setError] = useState('');
 
   const handleSignUp = async () => {
+    if (email === '' || password === '') {
+      setError("Please enter both email and password.");
+      return;
+    }
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
+      // Create the user in Firebase Auth
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      // Create a user document in Firestore
+      await setDoc(doc(db, "users", user.uid), {
+        email: user.email,
+        level: 1,
+        xp: 0,
+        armor: 'Leather Tunic',
+        weapon: 'Wooden Sword',
+      });
+
     } catch (err) {
       setError(err.message);
     }
   };
 
   const handleLogin = async () => {
+    if (email === '' || password === '') {
+      setError("Please enter both email and password.");
+      return;
+    }
     try {
       await signInWithEmailAndPassword(auth, email, password);
     } catch (err) {
@@ -24,6 +46,7 @@ const LoginScreen = () => {
     }
   };
 
+  // ... rest of the component is the same
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
@@ -55,6 +78,7 @@ const LoginScreen = () => {
   );
 };
 
+// ... styles are the same
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
@@ -96,6 +120,10 @@ const styles = StyleSheet.create({
 });
 
 export default LoginScreen;
-// This code defines a LoginScreen component that allows users to log in or sign up using Firebase authentication.
-// It includes input fields for email and password, buttons for login and sign up, and error handling.
-// The styles are defined to create a dark theme with a modern look, suitable for a mobile
+
+// This code defines a LoginScreen component that allows users to log in or sign up using Firebase Authentication.
+// It includes input fields for email and password, and buttons for login and sign up.
+// When a user signs up, it creates a new user in Firebase Auth and also creates a corresponding user document in Firestore with default values for level, xp, armor, and weapon.
+// If there are any errors during login or sign up, they are displayed below the input fields.
+// The styles   are defined to give the screen a dark theme with white text and buttons.
+// The component uses SafeAreaView to ensure proper layout on devices with notches or rounded corners
