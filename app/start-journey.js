@@ -1,6 +1,8 @@
-import StartYourJourneyScreen from '../src/screens/StartYourJourneyScreen';
+import StartYourJourney from '../src/screens/StartYourJourney';
 
-export default StartYourJourneyScreen;
+export default StartYourJourney;
+
+
 // This file serves as the entry point for the Start Your Journey screen in the app.
 // It imports the StartYourJourneyScreen component from the src/screens directory and exports it as the default export.
 // This allows the app to render the Start Your Journey screen when the user navigates to this route.

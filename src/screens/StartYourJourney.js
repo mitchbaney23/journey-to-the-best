@@ -14,7 +14,7 @@ const STAGES = [
     { stage: 7, title: "👑 Monkey King Ascended", requirements: { pushups: 100, situps: 100, squats: 100, pullups: 20, run5kMinutes: 24.98 } }
 ];
 
-const StartYourJourneyScreen = () => {
+const StartYourJourney = () => {
     const router = useRouter();
     const [stats, setStats] = useState({
         pushups: '',
@@ -138,6 +138,4 @@ const styles = StyleSheet.create({
     timeSeparator: { color: '#FFFFFF', fontSize: 24, marginHorizontal: 10 },
 });
 
-export default StartYourJourneyScreen;
-// This code defines the StartYourJourneyScreen component, which allows users to enter their baseline fitness stats and calculates their initial stage based on those stats. It uses Firebase Firestore to save the user's data and navigate back to the home screen after saving. The component includes input fields for push-ups, sit-ups, squats, pull-ups, and 5K run time, with validation and error handling.
-// The stages are defined in the STAGES array, and the highest stage qualified for is determined by comparing the user's stats against the requirements for each stage. The user is prompted to enter their stats
+export default StartYourJourney;
