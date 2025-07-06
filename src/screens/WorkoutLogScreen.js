@@ -149,23 +149,32 @@ const WorkoutLogScreen = () => {
             hasNewBest = true; 
         }
 
+        // Always calculate the new stage based on the current workout's performance
+        const newStage = calculateStage(currentWorkout);
+        const oldStage = userProfile.currentStage;
+        
+        const updateData = {
+            currentStage: newStage,
+        };
+        
         if (hasNewBest) {
-            const newStage = calculateStage(newBest);
-            const userDocRef = doc(db, 'users', user.uid);
-            await setDoc(userDocRef, {
-                bestPerformance: newBest,
-                currentStage: newStage
-            }, { merge: true });
-
-            if (newStage.stage > userProfile.currentStage.stage) {
-                Alert.alert("Stage Up!", `You have ascended to a new stage: ${newStage.title}`);
-            } else {
-                 Alert.alert("New Record!", "You've set a new personal best!");
-            }
-        } else {
-            Alert.alert("Workout Logged!", "Great work! Keep pushing your limits.");
+            updateData.bestPerformance = newBest;
         }
-    }, [userProfile]); // Dependency is now just userProfile
+
+        const userDocRef = doc(db, 'users', user.uid);
+        await setDoc(userDocRef, updateData, { merge: true });
+
+        // Provide feedback based on stage changes or new records
+        if (newStage.stage > oldStage.stage) {
+            Alert.alert("Stage Up!", `Your performance has propelled you to a new stage: ${newStage.title}`);
+        } else if (newStage.stage < oldStage.stage) {
+            Alert.alert("Stage Change", `Your current performance places you at the ${newStage.title} stage. Keep pushing!`);
+        } else if (hasNewBest) {
+            Alert.alert("New Record!", "You've set a new personal best!");
+        } else {
+            Alert.alert("Workout Logged!", "Great work! Every step on the journey counts.");
+        }
+    }, [userProfile]);
 
     const renderHeader = () => (
         <>
@@ -219,5 +228,6 @@ const styles = StyleSheet.create({
 });
 
 export default WorkoutLogScreen;
-// This code defines the WorkoutLogScreen component, which allows users to log their workouts and view their workout history. It uses Firebase Firestore to store and retrieve workout data, and it calculates the user's current stage based on their performance. The component includes a form for logging workouts and displays a list of past workouts in a flat list format. The UI is styled for a modern look, with a focus on user experience.
-// The WorkoutForm component is memoized to prevent unnecessary re-renders, and the useCallback hook is used to handle input changes and logging workouts efficiently. The component also includes error handling and feedback
+// This code defines the WorkoutLogScreen component, which allows users to log their workouts and view their workout history.
+// It includes a form for entering workout stats, calculates the user's stage based on their performance,
+// and updates the user's profile in Firestore. The component uses hooks for state management and effects
