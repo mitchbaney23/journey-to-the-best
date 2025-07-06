@@ -47,11 +47,13 @@ const HomeScreen = () => {
           <>
             <Text style={styles.title}>🏆 {userProfile.currentStage?.title || 'Welcome Adventurer!'} 🏆</Text>
             <View style={styles.statsContainer}>
-                <Text style={styles.statText}>Adventurer: {userProfile.email}</Text>
+                <Text style={styles.statText}>Adventurer: {userProfile.username || userProfile.email}</Text>
                 <Text style={styles.statText}>Current Stage: {userProfile.currentStage?.stage || 'N/A'}</Text>
             </View>
-            {/* Add this button */}
-            <Button title="Log a New Workout" onPress={() => router.push('/log-workout')} color="#4CAF50" />
+            <View style={styles.buttonRow}>
+                <Button title="Log a Workout" onPress={() => router.push('/log-workout')} color="#4CAF50" />
+                <Button title="Edit Profile" onPress={() => router.push('/profile')} color="#2196F3" />
+            </View>
           </>
         ) : (
           <>
@@ -68,16 +70,16 @@ const HomeScreen = () => {
   );
 };
 
-// ... styles are the same
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: '#1a1a1a' },
   container: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 },
   title: { fontSize: 28, fontWeight: 'bold', color: '#FFFFFF', textAlign: 'center', marginBottom: 15 },
   subtitle: { fontSize: 16, color: '#ccc', textAlign: 'center', marginBottom: 30, paddingHorizontal: 20 },
-  statsContainer: { padding: 20, backgroundColor: '#333', borderRadius: 10, width: '100%', marginBottom: 40 },
+  statsContainer: { padding: 20, backgroundColor: '#333', borderRadius: 10, width: '100%', marginBottom: 20 },
   statText: { fontSize: 18, color: '#FFFFFF', marginBottom: 10 },
+  buttonRow: { flexDirection: 'row', justifyContent: 'space-around', width: '100%', marginBottom: 40 },
   signOutButton: { position: 'absolute', bottom: 40 },
 });
 
 export default HomeScreen;
-// This code defines the HomeScreen component, which displays the user's profile information and allows them to start their journey or log a new workout. It uses Firebase Firestore to fetch the user's data and provides a sign-out button. The component is styled for a clean, modern look, with a focus on user experience. The use of hooks like useState and useEffect allows for efficient state management and data fetching.
+// This code defines the HomeScreen component, which serves as the main screen of the app.
