@@ -50,6 +50,8 @@ const HomeScreen = () => {
                 <Text style={styles.statText}>Adventurer: {userProfile.email}</Text>
                 <Text style={styles.statText}>Current Stage: {userProfile.currentStage?.stage || 'N/A'}</Text>
             </View>
+            {/* Add this button */}
+            <Button title="Log a New Workout" onPress={() => router.push('/log-workout')} color="#4CAF50" />
           </>
         ) : (
           <>
@@ -66,6 +68,7 @@ const HomeScreen = () => {
   );
 };
 
+// ... styles are the same
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: '#1a1a1a' },
   container: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 },
@@ -77,5 +80,4 @@ const styles = StyleSheet.create({
 });
 
 export default HomeScreen;
-// This code defines the HomeScreen component, which displays the user's profile information and allows them to sign out. It fetches the user's data from Firestore and shows their current stage and email. If the user hasn't started their journey, it provides a button to navigate to the Start Your Journey screen.
-// The component also handles loading states and displays a loading indicator while fetching data. The styles are defined using StyleSheet from React Native, ensuring a consistent look and feel across the app. The sign  
+// This code defines the HomeScreen component, which displays the user's profile information and allows them to start their journey or log a new workout. It uses Firebase Firestore to fetch the user's data and provides a sign-out button. The component is styled for a clean, modern look, with a focus on user experience. The use of hooks like useState and useEffect allows for efficient state management and data fetching.
