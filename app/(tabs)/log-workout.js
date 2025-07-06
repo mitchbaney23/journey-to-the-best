@@ -1,4 +1,4 @@
-import WorkoutLogScreen from '../src/screens/WorkoutLogScreen';
+import WorkoutLogScreen from '../../src/screens/WorkoutLogScreen';
 
 export default WorkoutLogScreen;
 
