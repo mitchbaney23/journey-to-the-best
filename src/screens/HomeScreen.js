@@ -3,6 +3,7 @@ import { signOut } from 'firebase/auth';
 import { doc, onSnapshot } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Button, SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import ProgressMap from '../components/ProgressMap'; // <-- Import the new component
 import { auth, db } from '../config/firebaseConfig';
 
 const HomeScreen = () => {
@@ -46,6 +47,10 @@ const HomeScreen = () => {
         {userProfile?.baseline ? (
           <>
             <Text style={styles.title}>Journey to the Best</Text>
+            
+            {/* Render the ProgressMap component here */}
+            <ProgressMap currentStage={userProfile.currentStage} />
+
             <View style={styles.statsContainer}>
                 <Text style={styles.statText}>Adventurer: {userProfile.username || userProfile.email}</Text>
                 <Text style={styles.statText}>Current Stage: {userProfile.currentStage?.title || 'N/A'}</Text>
