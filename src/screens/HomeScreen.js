@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import { signOut } from 'firebase/auth';
-import { doc, onSnapshot } from 'firebase/firestore';
+import { collection, doc, limit, onSnapshot, orderBy, query } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Button, FlatList, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 import { auth, db } from '../config/firebaseConfig';
@@ -16,9 +16,13 @@ const STAGES = [
     { stage: 7, title: "👑 Monkey King Ascended", requirements: { pushups: 100, situps: 100, squats: 100, pullups: 20, run5kMinutes: 24.98 } }
 ];
 
-// New Component to calculate and display progress towards the next stage
-const ProgressTracker = ({ userProfile }) => {
-    if (!userProfile?.currentStage) return null;
+// This component now uses the most recent workout to calculate progress
+const ProgressTracker = ({ userProfile, latestWorkout }) => {
+    if (!userProfile?.currentStage || !userProfile?.baseline) return null;
+
+    // Prioritize the latest workout's stats, otherwise fall back to the baseline
+    const userStats = latestWorkout || userProfile.baseline;
+    if (!userStats) return null; // Extra guard clause
 
     const currentStageIndex = STAGES.findIndex(s => s.stage === userProfile.currentStage.stage);
     
@@ -31,25 +35,25 @@ const ProgressTracker = ({ userProfile }) => {
     }
 
     const nextStage = STAGES[currentStageIndex + 1];
-    const userStats = userProfile.bestPerformance || userProfile.baseline;
     const nextReq = nextStage.requirements;
 
     const progress = {
-        pushups: Math.max(0, nextReq.pushups - userStats.pushups),
-        situps: Math.max(0, nextReq.situps - userStats.situps),
-        squats: Math.max(0, nextReq.squats - userStats.squats),
-        pullups: Math.max(0, nextReq.pullups - userStats.pullups),
-        run5k: Math.max(0, userStats.run5kTotalMinutes - nextReq.run5kMinutes),
+        pushups: Math.max(0, nextReq.pushups - (userStats.pushups || 0)),
+        situps: Math.max(0, nextReq.situps - (userStats.situps || 0)),
+        squats: Math.max(0, nextReq.squats - (userStats.squats || 0)),
+        pullups: Math.max(0, nextReq.pullups - (userStats.pullups || 0)),
+        run5k: Math.max(0, (userStats.run5kTotalMinutes || 999) - nextReq.run5kMinutes),
     };
 
     return (
         <View style={styles.progressContainer}>
             <Text style={styles.progressTitle}>Progress to: {nextStage.title}</Text>
+            <Text style={styles.progressSubtitle}>(Based on your last workout)</Text>
             {progress.pushups > 0 && <Text style={styles.progressText}>Push-ups: {progress.pushups} more</Text>}
             {progress.situps > 0 && <Text style={styles.progressText}>Sit-ups: {progress.situps} more</Text>}
             {progress.squats > 0 && <Text style={styles.progressText}>Squats: {progress.squats} more</Text>}
             {progress.pullups > 0 && <Text style={styles.progressText}>Pull-ups: {progress.pullups} more</Text>}
-            {progress.run5k > 0 && <Text style={styles.progressText}>5K Time: Improve by {progress.run5k.toFixed(2)} mins</Text>}
+            {(userStats.run5kTotalMinutes || 999) > nextReq.run5kMinutes && <Text style={styles.progressText}>5K Time: Improve by {progress.run5k.toFixed(2)} mins</Text>}
         </View>
     );
 };
@@ -58,22 +62,40 @@ const ProgressTracker = ({ userProfile }) => {
 const HomeScreen = () => {
   const router = useRouter();
   const [userProfile, setUserProfile] = useState(null);
+  const [latestWorkout, setLatestWorkout] = useState(null); // <-- State for latest workout
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const user = auth.currentUser;
-    if (user) {
-      const userDocRef = doc(db, 'users', user.uid);
-      const unsubscribe = onSnapshot(userDocRef, (doc) => {
+    if (!user) return;
+
+    // Listener for user profile
+    const userDocRef = doc(db, 'users', user.uid);
+    const unsubscribeProfile = onSnapshot(userDocRef, (doc) => {
         if (doc.exists()) {
-          setUserProfile(doc.data());
+            setUserProfile(doc.data());
         } else {
-          console.log("No such document!");
+            console.log("No such document!");
         }
         setLoading(false);
-      });
-      return () => unsubscribe();
-    }
+    });
+
+    // Listener for the most recent workout
+    const workoutsQuery = query(
+        collection(db, 'users', user.uid, 'workouts'),
+        orderBy('timestamp', 'desc'),
+        limit(1)
+    );
+    const unsubscribeWorkouts = onSnapshot(workoutsQuery, (snapshot) => {
+        if (!snapshot.empty) {
+            setLatestWorkout(snapshot.docs[0].data());
+        }
+    });
+
+    return () => {
+        unsubscribeProfile();
+        unsubscribeWorkouts();
+    };
   }, []);
 
   const handleSignOut = () => {
@@ -101,8 +123,7 @@ const HomeScreen = () => {
             <Button title="Log a Workout" onPress={() => router.push('/log-workout')} color="#4CAF50" />
             <Button title="Edit Profile" onPress={() => router.push('/profile')} color="#2196F3" />
         </View>
-        {/* Render the new ProgressTracker component */}
-        <ProgressTracker userProfile={userProfile} />
+        <ProgressTracker userProfile={userProfile} latestWorkout={latestWorkout} />
         <Text style={styles.mapTitle}>Your Path</Text>
     </>
   );
@@ -150,7 +171,8 @@ const styles = StyleSheet.create({
   statText: { fontSize: 18, color: '#FFFFFF', marginBottom: 10 },
   buttonRow: { flexDirection: 'row', justifyContent: 'space-around', width: '100%', marginBottom: 20 },
   progressContainer: { padding: 15, backgroundColor: '#2a2a2a', borderRadius: 10, width: '100%', marginBottom: 20 },
-  progressTitle: { fontSize: 18, fontWeight: 'bold', color: '#FFFFFF', marginBottom: 10 },
+  progressTitle: { fontSize: 18, fontWeight: 'bold', color: '#FFFFFF', marginBottom: 5 },
+  progressSubtitle: { fontSize: 12, color: '#aaa', fontStyle: 'italic', marginBottom: 10 },
   progressText: { fontSize: 16, color: '#ccc', marginBottom: 5 },
   mapTitle: { fontSize: 22, fontWeight: 'bold', color: '#FFFFFF', marginTop: 20, marginBottom: 15 },
   stageContainer: {
@@ -186,7 +208,5 @@ const styles = StyleSheet.create({
 export default HomeScreen;
 // This code defines the HomeScreen component, which serves as the main screen of the app.
 // It displays the user's current stage, allows them to log workouts, edit their profile, and view their progress.
-// The component uses Firebase Firestore to fetch the user's profile data and display their journey stages.
-// It also includes a ProgressTracker component that calculates and displays the user's progress towards the next stage.
-// The STAGES array defines the entire journey, and the component uses a FlatList to render each stage with styles applied for visual clarity and emphasis on the current stage.
-// The component handles loading states and
+// The component uses Firebase Firestore to fetch the user's profile and latest workout data,
+// and it includes a progress tracker that shows how close the user is to reaching the next stage
