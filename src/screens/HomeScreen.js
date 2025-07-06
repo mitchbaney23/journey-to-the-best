@@ -2,18 +2,18 @@ import { useRouter } from 'expo-router';
 import { signOut } from 'firebase/auth';
 import { collection, doc, limit, onSnapshot, orderBy, query } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Button, FlatList, Image, ImageBackground, SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Button, FlatList, ImageBackground, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 import { auth, db } from '../config/firebaseConfig';
 
 // The STAGES array defines the entire journey, now with requirements
 const STAGES = [
-    { stage: 1, title: "🌱 Awakened Seeker", icon: require('../assets/images/stage1.png'), requirements: { pushups: 10, situps: 20, squats: 20, pullups: 0, run5kMinutes: 45 } },
-    { stage: 2, title: "🍂 Pathfinder", icon: require('../assets/images/stage2.png'), requirements: { pushups: 20, situps: 30, squats: 30, pullups: 1, run5kMinutes: 40 } },
-    { stage: 3, title: "🌸 Disciple", icon: require('../assets/images/stage3.png'), requirements: { pushups: 30, situps: 40, squats: 50, pullups: 3, run5kMinutes: 35 } },
-    { stage: 4, title: "🪷 Enlightened Warrior", icon: require('../assets/images/stage4.png'), requirements: { pushups: 50, situps: 50, squats: 75, pullups: 5, run5kMinutes: 30 } },
-    { stage: 5, title: "🏔️ Mountain Sage", icon: require('../assets/images/stage5.png'), requirements: { pushups: 70, situps: 75, squats: 90, pullups: 10, run5kMinutes: 27 } },
-    { stage: 6, title: "🔥 Heavenly Champion", icon: require('../assets/images/stage6.png'), requirements: { pushups: 90, situps: 90, squats: 100, pullups: 15, run5kMinutes: 25 } },
-    { stage: 7, title: "👑 Monkey King Ascended", icon: require('../assets/images/stage7.png'), requirements: { pushups: 100, situps: 100, squats: 100, pullups: 20, run5kMinutes: 24.98 } }
+    { stage: 1, title: "🌱 Awakened Seeker", requirements: { pushups: 10, situps: 20, squats: 20, pullups: 0, run5kMinutes: 45 } },
+    { stage: 2, title: "🍂 Pathfinder", requirements: { pushups: 20, situps: 30, squats: 30, pullups: 1, run5kMinutes: 40 } },
+    { stage: 3, title: "🌸 Disciple", requirements: { pushups: 30, situps: 40, squats: 50, pullups: 3, run5kMinutes: 35 } },
+    { stage: 4, title: "🪷 Enlightened Warrior", requirements: { pushups: 50, situps: 50, squats: 75, pullups: 5, run5kMinutes: 30 } },
+    { stage: 5, title: "🏔️ Mountain Sage", requirements: { pushups: 70, situps: 75, squats: 90, pullups: 10, run5kMinutes: 27 } },
+    { stage: 6, title: "🔥 Heavenly Champion", requirements: { pushups: 90, situps: 90, squats: 100, pullups: 15, run5kMinutes: 25 } },
+    { stage: 7, title: "👑 Monkey King Ascended", requirements: { pushups: 100, situps: 100, squats: 100, pullups: 20, run5kMinutes: 24.98 } }
 ];
 
 // This component now uses the most recent workout to calculate progress
@@ -103,7 +103,7 @@ const HomeScreen = () => {
     const isCurrentStage = item.stage === userProfile?.currentStage?.stage;
     return (
         <View style={[styles.stageContainer, isCurrentStage && styles.currentStage]}>
-            <Image source={item.icon} style={styles.stageIcon} />
+            <Text style={styles.stageNumber}>{item.stage}</Text>
             <Text style={styles.stageTitleText}>{item.title}</Text>
         </View>
     );
@@ -135,7 +135,7 @@ const HomeScreen = () => {
 
   return (
     <ImageBackground 
-        source={require('../assets/images/home-screen-background.png')} 
+        source={require('../assets/images/background.png')} 
         style={styles.background}
         resizeMode="cover"
     >
@@ -187,7 +187,8 @@ const styles = StyleSheet.create({
   stageContainer: {
     backgroundColor: 'rgba(51, 51, 51, 0.8)',
     borderRadius: 10,
-    padding: 15,
+    paddingVertical: 15,
+    paddingHorizontal: 20,
     marginBottom: 15,
     width: '100%',
     flexDirection: 'row',
@@ -199,10 +200,11 @@ const styles = StyleSheet.create({
     borderColor: '#4CAF50',
     backgroundColor: 'rgba(42, 77, 42, 0.9)',
   },
-  stageIcon: {
-    width: 40,
-    height: 40,
-    marginRight: 15,
+  stageNumber: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#ccc',
+    marginRight: 20,
   },
   stageTitleText: {
     fontSize: 18,
