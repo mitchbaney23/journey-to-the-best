@@ -1,29 +1,39 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
+import { Slot, useRouter, useSegments } from 'expo-router';
+import React, { useEffect } from 'react';
+import { ActivityIndicator, View } from 'react-native';
+import { useAuth } from '../src/hooks/useAuth'; // Using relative path for robustness
 
-import { useColorScheme } from '@/hooks/useColorScheme';
+const InitialLayout = () => {
+    const { user, initializing } = useAuth();
+    const router = useRouter();
+    const segments = useSegments();
 
-export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-  });
+    useEffect(() => {
+        if (initializing) return;
 
-  if (!loaded) {
-    // Async font loading only occurs in development.
-    return null;
-  }
+        const inAuthGroup = segments[0] === 'auth';
 
-  return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
-  );
-}
+        // If the user is signed in and the initial segment is not '(tabs)',
+        // redirect them to the main tabs screen.
+        if (user && segments[0] !== '(tabs)') {
+            router.replace('/(tabs)');
+        } 
+        // If the user is not signed in and not in the auth group,
+        // redirect them to the login page.
+        else if (!user && !inAuthGroup) {
+            router.replace('/(auth)/login');
+        }
+    }, [user, initializing, segments]);
+
+    if (initializing) {
+        return (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                <ActivityIndicator size="large" />
+            </View>
+        );
+    }
+
+    return <Slot />;
+};
+
+export default InitialLayout;

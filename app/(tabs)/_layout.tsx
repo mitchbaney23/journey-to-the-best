@@ -10,11 +10,11 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        headerShown: false, // Hide the header for all tabs
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint, // Use your project's theme color
-        tabBarInactiveTintColor: '#888', // Inactive icon color (gray)
+        headerShown: false,
+        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+        tabBarInactiveTintColor: '#888',
         tabBarStyle: {
-          backgroundColor: '#1a1a1a', // Dark background for the tab bar
+          backgroundColor: '#1a1a1a',
           borderTopColor: '#333',
         },
       }}
@@ -43,6 +43,3 @@ export default function TabLayout() {
     </Tabs>
   );
 }
-// This code defines a tab layout for a React Native app using Expo Router.
-// It includes three tabs: Home, Log Workout, and Profile, each with its own icon.
-// The tab bar is styled with a dark background and custom colors for active and inactive icons.  
