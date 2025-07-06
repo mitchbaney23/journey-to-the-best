@@ -45,10 +45,11 @@ const HomeScreen = () => {
       <View style={styles.container}>
         {userProfile?.baseline ? (
           <>
-            <Text style={styles.title}>🏆 {userProfile.currentStage?.title || 'Welcome Adventurer!'} 🏆</Text>
+            <Text style={styles.title}>Journey to the Best</Text>
+            <Text style={styles.stageTitle}>🏆 {userProfile.currentStage?.title || 'Welcome Adventurer!'} 🏆</Text>
             <View style={styles.statsContainer}>
                 <Text style={styles.statText}>Adventurer: {userProfile.username || userProfile.email}</Text>
-                <Text style={styles.statText}>Current Stage: {userProfile.currentStage?.stage || 'N/A'}</Text>
+                <Text style={styles.statText}>Current Stage: {userProfile.currentStage?.title || 'N/A'}</Text>
             </View>
             <View style={styles.buttonRow}>
                 <Button title="Log a Workout" onPress={() => router.push('/log-workout')} color="#4CAF50" />
@@ -73,7 +74,8 @@ const HomeScreen = () => {
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: '#1a1a1a' },
   container: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 },
-  title: { fontSize: 28, fontWeight: 'bold', color: '#FFFFFF', textAlign: 'center', marginBottom: 15 },
+  title: { fontSize: 28, fontWeight: 'bold', color: '#FFFFFF', textAlign: 'center', marginBottom: 10 },
+  stageTitle: { fontSize: 22, color: '#FFFFFF', textAlign: 'center', marginBottom: 20 },
   subtitle: { fontSize: 16, color: '#ccc', textAlign: 'center', marginBottom: 30, paddingHorizontal: 20 },
   statsContainer: { padding: 20, backgroundColor: '#333', borderRadius: 10, width: '100%', marginBottom: 20 },
   statText: { fontSize: 18, color: '#FFFFFF', marginBottom: 10 },
@@ -82,4 +84,3 @@ const styles = StyleSheet.create({
 });
 
 export default HomeScreen;
-// This code defines the HomeScreen component, which serves as the main screen of the app.
