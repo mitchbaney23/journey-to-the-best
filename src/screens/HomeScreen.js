@@ -48,10 +48,6 @@ const HomeScreen = () => {
         {userProfile ? (
           <View style={styles.statsContainer}>
             <Text style={styles.statText}>Adventurer: {userProfile.email}</Text>
-            <Text style={styles.statText}>Level: {userProfile.level}</Text>
-            <Text style={styles.statText}>XP: {userProfile.xp}</Text>
-            <Text style={styles.statText}>Armor: {userProfile.armor}</Text>
-            <Text style={styles.statText}>Weapon: {userProfile.weapon}</Text>
           </View>
         ) : (
           <Text style={styles.statText}>No profile data found.</Text>
@@ -100,5 +96,5 @@ const styles = StyleSheet.create({
 });
 
 export default HomeScreen;
-// This code defines a HomeScreen component that displays the user's profile information fetched from Firestore.
-// It includes a sign-out button that allows the user to log out of the application.  
+// This code defines the HomeScreen component, which displays the user's profile information and allows them to sign out.
+// It uses Firebase Firestore to fetch the user's data in real-time and displays it on the    

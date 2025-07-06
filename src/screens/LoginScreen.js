@@ -20,13 +20,9 @@ const LoginScreen = () => {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
-      // Create a user document in Firestore
+      // Create a user document in Firestore with just the email
       await setDoc(doc(db, "users", user.uid), {
         email: user.email,
-        level: 1,
-        xp: 0,
-        armor: 'Leather Tunic',
-        weapon: 'Wooden Sword',
       });
 
     } catch (err) {
@@ -120,10 +116,14 @@ const styles = StyleSheet.create({
 });
 
 export default LoginScreen;
-
-// This code defines a LoginScreen component that allows users to log in or sign up using Firebase Authentication.
-// It includes input fields for email and password, and buttons for login and sign up.
-// When a user signs up, it creates a new user in Firebase Auth and also creates a corresponding user document in Firestore with default values for level, xp, armor, and weapon.
-// If there are any errors during login or sign up, they are displayed below the input fields.
-// The styles   are defined to give the screen a dark theme with white text and buttons.
-// The component uses SafeAreaView to ensure proper layout on devices with notches or rounded corners
+// This code defines a LoginScreen component that allows users to log in or sign up.
+// It uses Firebase Authentication to handle user accounts and Firestore to store user data.
+// The component includes input fields for email and password, and buttons for login and sign-up.
+// It also handles errors and displays them to the user. The styles are defined using StyleSheet from React Native.
+// The SafeAreaView ensures that the content is displayed within the safe area boundaries of the device, providing a better user experience on devices with notches or rounded corners.
+// The component is exported for use in other parts of the application, such as the RootNavigation component, which determines whether to show the LoginScreen or HomeScreen based on the user's authentication state.
+// This code is a complete implementation of a login screen for a React Native application using Firebase for authentication and Firestore for user data storage.
+// It provides a user-friendly interface for logging in and signing up, with error handling for invalid inputs.
+// The styles are designed to create a visually appealing and functional layout, ensuring a good user experience across different devices.
+// The component is ready to be integrated into the larger application, allowing users to authenticate and access their profiles securely.
+// The use of SafeAreaView ensures that the content is displayed correctly on devices with notches or rounded corners, enhancing the overall user experience
