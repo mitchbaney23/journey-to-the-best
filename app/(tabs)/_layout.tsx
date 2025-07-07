@@ -40,6 +40,13 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <FontAwesome5 name="user-alt" size={24} color={color} />,
         }}
       />
+            {/* Add this screen to hide it from the tab bar */}
+      <Tabs.Screen
+        name="journey-map"
+        options={{
+          href: null,
+        }}
+      />
     </Tabs>
   );
 }
