@@ -1,8 +1,8 @@
-import { useAuth } from '@/hooks/useAuth';
 import { useFonts } from 'expo-font'; // <-- Import useFonts
 import { Slot, useRouter, useSegments } from 'expo-router';
 import React, { useEffect } from 'react';
 import { ActivityIndicator, View } from 'react-native';
+import { useAuth } from '../src/hooks/useAuth'; // <-- Corrected relative path
 
 const InitialLayout = () => {
     const { user, initializing: authInitializing } = useAuth();
