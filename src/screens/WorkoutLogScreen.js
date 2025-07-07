@@ -1,7 +1,7 @@
 import { useRouter } from 'expo-router';
 import { addDoc, collection, doc, onSnapshot, orderBy, query, serverTimestamp, setDoc } from 'firebase/firestore';
 import React, { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Button, FlatList, SafeAreaView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Button, FlatList, SafeAreaView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { auth, db } from '../config/firebaseConfig';
 
 const STAGES = [
@@ -164,16 +164,12 @@ const WorkoutLogScreen = () => {
         const userDocRef = doc(db, 'users', user.uid);
         await setDoc(userDocRef, updateData, { merge: true });
 
-        // Provide feedback based on stage changes or new records
-        if (newStage.stage > oldStage.stage) {
-            Alert.alert("Stage Up!", `Your performance has propelled you to a new stage: ${newStage.title}`);
-        } else if (newStage.stage < oldStage.stage) {
-            Alert.alert("Stage Change", `Your current performance places you at the ${newStage.title} stage. Keep pushing!`);
-        } else if (hasNewBest) {
-            Alert.alert("New Record!", "You've set a new personal best!");
-        } else {
-            Alert.alert("Workout Logged!", "Great work! Every step on the journey counts.");
-        }
+    // Navigate to the map screen after logging
+        router.push({
+            pathname: '/(tabs)/journey-map',
+            params: { currentStage: newStage.stage },
+        });
+
     }, [userProfile]);
 
     const renderHeader = () => (

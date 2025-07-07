@@ -3,15 +3,15 @@ import React, { useEffect } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { useAuth } from '../src/hooks/useAuth'; // Using relative path for robustness
 
-const InitialLayout = () => {
-    const { user, initializing } = useAuth();
+const InitialLayout: React.FC = () => {
+    const { user, initializing }: { user: any; initializing: boolean } = useAuth();
     const router = useRouter();
-    const segments = useSegments();
+    const segments: string[] = useSegments() as string[];
 
     useEffect(() => {
         if (initializing) return;
 
-        const inAuthGroup = segments[0] === 'auth';
+        const inAuthGroup = typeof segments[0] === 'string' && segments[0].startsWith('auth');
 
         // If the user is signed in and the initial segment is not '(tabs)',
         // redirect them to the main tabs screen.
@@ -21,7 +21,7 @@ const InitialLayout = () => {
         // If the user is not signed in and not in the auth group,
         // redirect them to the login page.
         else if (!user && !inAuthGroup) {
-            router.replace('/(auth)/login');
+            router.replace('/login');
         }
     }, [user, initializing, segments]);
 
