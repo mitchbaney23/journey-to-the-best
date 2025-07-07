@@ -77,10 +77,29 @@ const styles = StyleSheet.create({
   background: { flex: 1 },
   safeArea: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)' },
   container: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 },
-  title: { fontSize: 28, fontWeight: 'bold', color: '#FFFFFF', textAlign: 'center', marginBottom: 20 },
-  subtitle: { fontSize: 16, color: '#ccc', textAlign: 'center', marginBottom: 30, paddingHorizontal: 20 },
+  title: { 
+    fontSize: 36, 
+    fontWeight: 'bold', 
+    color: '#FFFFFF', 
+    textAlign: 'center', 
+    marginBottom: 20,
+    fontFamily: 'Cinzel', // <-- Use Cinzel font for the main title
+  },
+  subtitle: { 
+    fontSize: 18, 
+    color: '#ccc', 
+    textAlign: 'center', 
+    marginBottom: 30, 
+    paddingHorizontal: 20,
+    fontFamily: 'Lora', // <-- Use Lora font for subtitles
+  },
   statsContainer: { padding: 20, backgroundColor: 'rgba(51, 51, 51, 0.8)', borderRadius: 10, width: '100%', marginBottom: 20 },
-  statText: { fontSize: 18, color: '#FFFFFF', marginBottom: 10 },
+  statText: { 
+    fontSize: 18, 
+    color: '#FFFFFF', 
+    marginBottom: 10,
+    fontFamily: 'Lora', // <-- Use Lora font for body text
+  },
   buttonRow: { flexDirection: 'row', justifyContent: 'space-around', width: '100%', marginBottom: 40 },
   signOutButton: { position: 'absolute', bottom: 40 },
 });

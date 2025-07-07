@@ -1,34 +1,41 @@
+import { useAuth } from '@/hooks/useAuth';
+import { useFonts } from 'expo-font'; // <-- Import useFonts
 import { Slot, useRouter, useSegments } from 'expo-router';
 import React, { useEffect } from 'react';
 import { ActivityIndicator, View } from 'react-native';
-import { useAuth } from '../src/hooks/useAuth'; // Using relative path for robustness
 
-const InitialLayout: React.FC = () => {
-    const { user, initializing }: { user: any; initializing: boolean } = useAuth();
+const InitialLayout = () => {
+    const { user, initializing: authInitializing } = useAuth();
     const router = useRouter();
-    const segments: string[] = useSegments() as string[];
+    const segments = useSegments();
+    
+    // Load custom fonts
+    const [fontsLoaded, fontError] = useFonts({
+        'Cinzel': require('../assets/fonts/Cinzel-Regular.ttf'), // Adjust filename if needed
+        'Lora': require('../assets/fonts/Lora-Regular.ttf'),   // Adjust filename if needed
+    });
 
     useEffect(() => {
-        if (initializing) return;
-
-        const inAuthGroup = typeof segments[0] === 'string' && segments[0].startsWith('auth');
-
-        // If the user is signed in and the initial segment is not '(tabs)',
-        // redirect them to the main tabs screen.
-        if (user && segments[0] !== '(tabs)') {
-            router.replace('/(tabs)');
-        } 
-        // If the user is not signed in and not in the auth group,
-        // redirect them to the login page.
-        else if (!user && !inAuthGroup) {
-            router.replace('/login');
+        if (!fontsLoaded && !fontError) {
+            return; // Wait for fonts to load or fail
         }
-    }, [user, initializing, segments]);
 
-    if (initializing) {
+        if (authInitializing) return;
+
+        const inAuthGroup = segments[0] === '(auth)';
+
+        if (user && !inAuthGroup) {
+            router.replace('/(tabs)');
+        } else if (!user && !inAuthGroup) {
+            router.replace('/(auth)/login');
+        }
+    }, [user, authInitializing, fontsLoaded, fontError, segments]);
+
+    // Show a loading indicator while fonts or auth state are loading
+    if (!fontsLoaded || authInitializing) {
         return (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                <ActivityIndicator size="large" />
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#1a1a1a' }}>
+                <ActivityIndicator size="large" color="#FFFFFF"/>
             </View>
         );
     }
