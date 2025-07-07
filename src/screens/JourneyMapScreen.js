@@ -1,6 +1,7 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useRef } from 'react';
 import { Animated, Button, FlatList, Image, SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import { STAGES } from '../constants/stages';
 
 // Assume you have your stage icons in this path
 const STAGE_ICONS = [
@@ -11,16 +12,6 @@ const STAGE_ICONS = [
     require('../assets/images/stage5.png'),
     require('../assets/images/stage6.png'),
     require('../assets/images/stage7.png'),
-];
-
-const STAGES = [
-    { stage: 1, title: "🌱 Awakened Seeker" },
-    { stage: 2, title: "🍂 Pathfinder" },
-    { stage: 3, title: "🌸 Disciple" },
-    { stage: 4, title: "🪷 Enlightened Warrior" },
-    { stage: 5, title: "🏔️ Mountain Sage" },
-    { stage: 6, title: "🔥 Heavenly Champion" },
-    { stage: 7, title: "👑 Monkey King Ascended" }
 ];
 
 const StageItem = ({ item, isCurrent, progress }) => {
