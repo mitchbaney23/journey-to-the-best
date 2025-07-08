@@ -2,7 +2,6 @@ import { onAuthStateChanged, User } from 'firebase/auth';
 import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 import { auth } from '../config/firebaseConfig';
 
-// Define the shape of the context value
 interface AuthContextType {
     user: User | null;
     initializing: boolean;
@@ -47,3 +46,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
         </AuthContext.Provider>
     );
 }
+
+// Usage in your main application file
+// import { AuthProvider } from './context/AuthContext';
