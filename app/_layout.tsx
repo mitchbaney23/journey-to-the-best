@@ -1,29 +1,53 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
+import { Slot, SplashScreen, useRouter, useSegments } from 'expo-router';
+import React, { useEffect } from 'react';
+import { AuthProvider, useAuth } from '../src/context/AuthContext';
 
-import { useColorScheme } from '@/hooks/useColorScheme';
+// This component handles the redirection logic
+const InitialLayout = () => {
+    const { user, initializing } = useAuth();
+    const router = useRouter();
+    const segments = useSegments();
 
+    useEffect(() => {
+        if (initializing) return;
+
+        const inAuthGroup = segments[0] === '(auth)';
+
+        if (user && inAuthGroup) {
+            router.replace('/(tabs)');
+        } else if (!user && !inAuthGroup) {
+            router.replace('/(auth)/login');
+        }
+    }, [user, initializing, segments]);
+
+    return <Slot />;
+}
+
+// This is the main root layout
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
+  const [loaded, error] = useFonts({
+    'Cinzel': require('../assets/fonts/Cinzel-Regular.ttf'),
+    'Lora': require('../assets/fonts/Lora-Regular.ttf'),
   });
 
+  useEffect(() => {
+    if (error) throw error;
+  }, [error]);
+
+  useEffect(() => {
+    if (loaded) {
+      SplashScreen.hideAsync();
+    }
+  }, [loaded]);
+
   if (!loaded) {
-    // Async font loading only occurs in development.
     return null;
   }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+      <AuthProvider>
+          <InitialLayout />
+      </AuthProvider>
   );
 }
